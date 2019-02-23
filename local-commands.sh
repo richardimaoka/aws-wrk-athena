@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WEB_SERVER_LOCAL_IP="10.0.0.212"
-STACK_NAME="aws-cloudformation-wrk.-1"
+STACK_NAME="aws-cloudformation-wrk-1"
 
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 set -e
