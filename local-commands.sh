@@ -4,14 +4,14 @@
 set -e
 
 # Create the Cloudformation stack from the local template `ec2-to-s3.cf.yml`
-SSH_LOCATION=$(curl ifconfig.co)
+SSH_LOCATION="$(curl ifconfig.co)/32"
 WEB_SERVER_LOCAL_IP="10.0.0.212"
 aws cloudformation create-stack \
   --stack-name aws-ec2-to-s3 \
   --template-body file://cloudformation.yaml \
-  --capabilities CAPABILITY_NAMED_IAM
+  --capabilities CAPABILITY_NAMED_IAM \
   --parameters ParameterKey=EC2InstanceType,ParameterValue=m5.2xlarge \
-               ParameterKey=IPAddressWebServer.ParameterValue=${WEB_SERVER_LOCAL_IP} \
+               ParameterKey=IPAddressWebServer,ParameterValue=${WEB_SERVER_LOCAL_IP} \
                ParameterKey=SSHLocation,ParameterValue=${SSH_LOCATION}
 # This produces output like below:  
 # {
@@ -27,7 +27,6 @@ INSTANCE_IDS=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation
 #   i-0b852411111111111
 #   i-0b852422222222222
 #   i-0b852433333333333
-
 # Turn the multi-line result into a single line
 INSTANCE_IDS=$(echo $INSTANCE_IDS | paste -sd " ")
 
@@ -35,9 +34,12 @@ INSTANCE_IDS=$(echo $INSTANCE_IDS | paste -sd " ")
 echo "Waiting until the following EC2 instances are OK: $INSTANCE_IDS"
 aws ec2 wait instance-status-ok --instance-ids $INSTANCE_IDS
 
+# Get list of EC2 instance IDs
+WRK_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=aws-ec2-to-s3" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=wrk-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
+
 echo "Run the remote command to crate a result file and copy it from EC2 to S3"
 aws ssm send-command \
-  --instance-ids $INSTANCE_IDS \
+  --instance-ids $WRK_INSTANCE_ID \
   --document-name "AWS-RunShellScript" \
   --parameters commands=["/home/ec2-user/aws-cloudformation-wrk/run-wrk.sh -d 30 -c 4 -t 4 http://${WEB_SERVER_LOCAL_IP}"]  
 
