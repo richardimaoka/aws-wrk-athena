@@ -29,20 +29,20 @@ INSTANCE_IDS=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation
 #   i-0b852411111111111
 #   i-0b852422222222222
 # Turn the multi-line result into a single line
-INSTANCE_IDS=$(echo "$INSTANCE_IDS" | paste -s)
+INSTANCE_IDS=$(echo ${INSTANCE_IDS} | paste -s)
 
 # Make sure all the EC2 instances in the Cloudformation stack are up and running
 echo "Waiting until the following EC2 instances are OK: $INSTANCE_IDS"
-aws ec2 wait instance-status-ok --instance-ids "$INSTANCE_IDS"
+aws ec2 wait instance-status-ok --instance-ids ${INSTANCE_IDS}
 
 # Get list of EC2 instance IDs
 WRK_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=${STACK_NAME}" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=wrk-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
 
-echo "Runnig a remote command to crate a result file and copy it from EC2 to S3"
+echo "Runnig a remote command to crate a result file and copy it from EC2 to S3 on ${WRK_INSTANCE_ID}"
 aws ssm send-command \
-  --instance-ids "$WRK_INSTANCE_ID" \
+  --instance-ids "${WRK_INSTANCE_ID}" \
   --document-name "AWS-RunShellScript" \
-  --parameters commands=["/home/ec2-user/aws-cloudformation-wrk/run-wrk.sh -d 30 -c 4 -t 4 http://${WEB_SERVER_LOCAL_IP}"]  
+  --parameters commands=["/home/ec2-user/aws-cloudformation-wrk/run-wrk.sh -d 30 -c 4 -t 4 http://${WEB_SERVER_LOCAL_IP}"]
 
 # Go to the following page and check the command status:
 # https://console.aws.amazon.com/ec2/v2/home?#Commands:sort=CommandId
