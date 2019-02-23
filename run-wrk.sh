@@ -53,7 +53,6 @@ do
     esac
 done
 
-
 # Produce wrk_parameters.json
 echo "{ \
   \"parameters.execution_time\":   \"$current_time\", \
@@ -71,7 +70,6 @@ ${WRK_CMD}
 # Produce metadata.json
 ./metadata.sh
 
-
-jq -s '.[0] * .[1]' result_metadata.json result_intermediate.json > result.json
+jq -s '.[0] * .[1] * .[2]' wrk_results.json wrk_parameters.json metadata.json > result.json
 
 

@@ -2,7 +2,7 @@
 -- https://github.com/wg/wrk/blob/master/SCRIPTING
 
 function done(summary, latency, requests)
-  file = io.open('result_intermediate.json', 'w')
+  file = io.open('wrk_results.json', 'w')
   io.output(file)
 
   io.write(string.format("{\n"))
@@ -11,7 +11,7 @@ function done(summary, latency, requests)
   io.write(string.format("\"summary.num_requests\":          %d,\n",      summary.requests))
   io.write(string.format("\"summary.total_bytes\":           %d,\n",      summary.bytes))
   io.write(string.format("\"summary.requests_per_sec\":      %.2f,\n",    summary.requests/(summary.duration)))
-  io.write(string.format("\"summary.bytes_per_sec\":         \"%.2f\"\n", summary.bytes/summary.duration))
+  io.write(string.format("\"summary.bytes_per_sec\":         \"%.2f\",\n", summary.bytes/summary.duration))
   
   io.write(string.format("\"summary.errors.connect\": %d,\n", summary.errors.connect))
   io.write(string.format("\"summary.errors.read\":    %d,\n", summary.errors.read))
