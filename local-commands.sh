@@ -3,11 +3,11 @@
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 set -e
 
-# Create the Cloudformation stack from the local template `ec2-to-s3.cf.yml`
+# Create the Cloudformation stack from the local template `cloudformation.yaml`
 SSH_LOCATION="$(curl ifconfig.co)/32"
 WEB_SERVER_LOCAL_IP="10.0.0.212"
 aws cloudformation create-stack \
-  --stack-name aws-ec2-to-s3 \
+  --stack-name aws-cloudformation-wrk \
   --template-body file://cloudformation.yaml \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters ParameterKey=EC2InstanceType,ParameterValue=m5.2xlarge \
@@ -15,14 +15,14 @@ aws cloudformation create-stack \
                ParameterKey=SSHLocation,ParameterValue=${SSH_LOCATION}
 # This produces output like below:  
 # {
-#   "StackId": "arn:aws:cloudformation:ap-northeast-1:795483015259:stack/aws-ec2-to-s3/e02c0f30-35d9-11e9-943d-0aa3c9b7e68c"
+#   "StackId": "arn:aws:cloudformation:ap-northeast-1:795483015259:stack/aws-cloudformation-wrk/e02c0f30-35d9-11e9-943d-0aa3c9b7e68c"
 # }
 
 echo "Waiting until the Cloudformation stack is CREATE_COMPLETE"
-aws cloudformation wait stack-create-complete --stack-name aws-ec2-to-s3
+aws cloudformation wait stack-create-complete --stack-name aws-cloudformation-wrk
 
 # Get list of EC2 instance IDs
-INSTANCE_IDS=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=aws-ec2-to-s3" "Name=instance-state-name,Values=running" --output text --query "Reservations[*].Instances[*].InstanceId")
+INSTANCE_IDS=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=aws-cloudformation-wrk" "Name=instance-state-name,Values=running" --output text --query "Reservations[*].Instances[*].InstanceId")
 # The above result is flattened array in multi-line output 
 #   i-0b852411111111111
 #   i-0b852422222222222
@@ -35,7 +35,7 @@ echo "Waiting until the following EC2 instances are OK: $INSTANCE_IDS"
 aws ec2 wait instance-status-ok --instance-ids $INSTANCE_IDS
 
 # Get list of EC2 instance IDs
-WRK_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=aws-ec2-to-s3" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=wrk-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
+WRK_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=aws-cloudformation-wrk" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=wrk-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
 
 echo "Run the remote command to crate a result file and copy it from EC2 to S3"
 aws ssm send-command \
