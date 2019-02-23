@@ -30,7 +30,7 @@ INSTANCE_IDS=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation
 #   i-0b852422222222222
 #   i-0b852433333333333
 # Turn the multi-line result into a single line
-INSTANCE_IDS=$(echo "$INSTANCE_IDS" | paste -sd \" \")
+INSTANCE_IDS=$(echo "$INSTANCE_IDS" | paste -sd " ")
 
 # Make sure all the EC2 instances in the Cloudformation stack are up and running
 echo "Waiting until the following EC2 instances are OK: $INSTANCE_IDS"
