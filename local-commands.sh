@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WEB_SERVER_LOCAL_IP="10.0.0.212"
-STACK_NAME="aws-cloudformation-wrk-1"
+STACK_NAME="aws-cloudformation-wrk.-1"
 
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 set -e
@@ -28,9 +28,8 @@ INSTANCE_IDS=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation
 # The above result is flattened array in multi-line output 
 #   i-0b852411111111111
 #   i-0b852422222222222
-#   i-0b852433333333333
 # Turn the multi-line result into a single line
-INSTANCE_IDS=$(echo "$INSTANCE_IDS" | paste -sd " ")
+INSTANCE_IDS=$(echo "$INSTANCE_IDS" | paste -s)
 
 # Make sure all the EC2 instances in the Cloudformation stack are up and running
 echo "Waiting until the following EC2 instances are OK: $INSTANCE_IDS"
