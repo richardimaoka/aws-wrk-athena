@@ -134,6 +134,7 @@ Resources:
             cd /home/ec2-user
             git clone https://github.com/richardimaoka/aws-cloudformation-wrk
             docker pull williamyeh/wrk
+            yum -y install jq
       NetworkInterfaces: 
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
