@@ -79,7 +79,7 @@ echo "{ \
   \"parameters.connections\":      $connections, \
   \"parameters.duration_seconds\": $duration, \
   \"parameters.num_threads\":      $threads \
-}" > results/wrk_parameters.json
+}" > wrk_parameters.json
 
 # Run wrk and produce wrk_results.json
 # Mounting the current directory to wrk container's WORKDIR = '/data'

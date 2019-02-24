@@ -6,26 +6,64 @@ cd "$(dirname "$0")"
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 set -e
 
-uuid=$(uuidgen)
-echo "" > "result-${uuid}.log"
+# parse options, note that whitespace is needed (e.g. -c 4) between an option and the option argument   
+#  --test-exec-uuid: A UUID representing a group of Cloudformation stacks for test execution
+# (argument)       : Web server's VPC local IP
+for OPT in "$@"
+do
+    case "$OPT" in
+        '--test-exec-uuid' )
+            if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                echo "wrk: option --test-exec-uuid requires an argument -- $1" 1>&2
+                exit 1
+            fi
+            TEST_EXECUTION_UUID="$2"
+            shift 2
+            ;;
+        -*)
+            echo "wrk: illegal option -- '$(echo "$1" | sed 's/^-*//')'" 1>&2
+            exit 1
+            ;;
+        *)
+            if [[ -n "$1" ]] && [[ ! "$1" =~ ^-+ ]]; then
+                WEB_SERVER_LOCAL_IP="$1"
+                break
+            fi
+            ;;
+    esac
+done
 
-# Run wrk and append the result to result-${uuid}.log
-./run-wrk.sh --web-framework nginx --test-case simple -t 4 -c 4 -d 15 
+# Copy the web server metadata to the current directory
+aws s3api wait object-exists \
+  --bucket "samplebucket-richardimaoka-sample-sample"
+  --key "${TEST_EXECUTION_UUID}/metadata.${WEB_SERVER_LOCAL_IP}.json"
+aws s3 cp \
+  "s3://samplebucket-richardimaoka-sample-sample/${TEST_EXECUTION_UUID}/metadata.${WEB_SERVER_LOCAL_IP}.json" \
+  "metadata.${WEB_SERVER_LOCAL_IP}.json"
+
+# Produce the file to aggregate wrk results
+LOCAL_IPV4=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+echo "" > "result-${LOCAL_IPV4}.log"
+
+# Run wrk and append the result to "result-${LOCAL_IPV4}.log"
+./run-wrk.sh --web-framework nginx --test-case simple -t 4 -c 4 -d 15 "http://${WEB_SERVER_LOCAL_IP}/"
 # Amazon Athena handles **single-line** JSON only due to 'org.openx.data.jsonserde.JsonSerDe'
 #   https://docs.aws.amazon.com/athena/latest/ug/parsing-JSON.html
 #   > Make sure that each JSON-encoded record is represented on a separate line.
 # so using -c to put each test case results into a single line:
-jq -c result.json >> "result-${uuid}.log"
+jq -s '.[0] * .[1]'"metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
 
 # Possibly run other test cases too
 ./run-wrk.sh --web-framework nginx --test-case simple -t 8 -c 8 -d 15 
-jq -c result.json >> "result-${uuid}.log"
+jq -s '.[0] * .[1]'"metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
 
 # ./run-wrk.sh --web-framework nginx --test-case simple -t 16 -c 16 -d 15 
-# jq -c result.json >> "result-${uuid}.log"
+# jq -s '.[0] * .[1]'"metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
 
 # ./run-wrk.sh --web-framework nginx --test-case complex -t 16 -c 16 -d 15 
-# jq -c result.json >> "result-${uuid}.log"
+# jq -s '.[0] * .[1]'"metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
 
 # move the result file to S3
-aws s3 mv "result-${uuid}.log" s3://samplebucket-richardimaoka-sample-sample/wrk-raw-results
+aws s3 mv \
+  "result-${LOCAL_IPV4}.log" \
+  "s3://samplebucket-richardimaoka-sample-sample/${TEST_EXECUTION_UUID}/result-${LOCAL_IPV4}.log"

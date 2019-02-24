@@ -30,4 +30,6 @@ echo "{ \
 
 # On Amazon Linux, AWS CLI is already installed
 # Note that an instance profiler setup is needed to execute AWS CLI on EC2
-aws s3 mv "metadata.${LOCAL_IPV4}.json" "s3://samplebucket-richardimaoka-sample-sample/${TARGET_S3_FOLDER}"
+aws s3 mv \
+  "metadata.${LOCAL_IPV4}.json" \
+  "s3://samplebucket-richardimaoka-sample-sample/${TARGET_S3_FOLDER}/metadata.${LOCAL_IPV4}.json"
