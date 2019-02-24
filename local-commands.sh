@@ -89,7 +89,7 @@ aws cloudformation create-stack \
   --template-body file://cloudformation.yaml \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters ParameterKey=EC2InstanceTypeWrk,ParameterValue=${WRK_INSTANCE_TYPE} \
-               ParameterKey=EC2InstanceTypeWeb,ParameterValue=${WEB_INSTANCE_TYPE} \
+               ParameterKey=EC2InstanceTypeWebServer,ParameterValue=${WEB_INSTANCE_TYPE} \
                ParameterKey=IPAddressWrk,ParameterValue="${WRK_LOCAL_IP}" \
                ParameterKey=IPAddressWebServer,ParameterValue="${WEB_SERVER_LOCAL_IP}" \
                ParameterKey=SSHLocation,ParameterValue="${SSH_LOCATION}"
