@@ -185,7 +185,7 @@ Resources:
             usermod -a -G docker ec2-user
             yum -y install git
             cd /home/ec2-user
-            git clone https://github.com/richardimaoka/aws-cloudformation-wrk
+            git clone https://github.com/richardimaoka/aws-wrk-athena
             docker pull williamyeh/wrk
             yum -y install jq
       NetworkInterfaces: 
@@ -221,9 +221,8 @@ Resources:
             usermod -a -G docker ec2-user
             yum -y install git
             cd /home/ec2-user
-            git clone https://github.com/richardimaoka/aws-cloudformation-wrk
-            cd aws-cloudformation-wrk
-            ./metadata-web.sh !Ref AWS::StackName
+            git clone https://github.com/richardimaoka/aws-wrk-athena
+            cd aws-wrk-athena
             docker run -d -p 80:80 nginx
       NetworkInterfaces: 
         - AssociatePublicIpAddress: "true"
