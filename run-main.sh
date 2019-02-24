@@ -35,7 +35,7 @@ done
 
 # Copy the web server metadata to the current directory
 aws s3api wait object-exists \
-  --bucket "samplebucket-richardimaoka-sample-sample"
+  --bucket "samplebucket-richardimaoka-sample-sample" \
   --key "${TEST_EXECUTION_UUID}/metadata.${WEB_SERVER_LOCAL_IP}.json"
 aws s3 cp \
   "s3://samplebucket-richardimaoka-sample-sample/${TEST_EXECUTION_UUID}/metadata.${WEB_SERVER_LOCAL_IP}.json" \
@@ -51,19 +51,19 @@ echo "" > "result-${LOCAL_IPV4}.log"
 #   https://docs.aws.amazon.com/athena/latest/ug/parsing-JSON.html
 #   > Make sure that each JSON-encoded record is represented on a separate line.
 # so using -c to put each test case results into a single line:
-jq -s '.[0] * .[1]'"metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
+jq -s '.[0] * .[1]' "metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
 
 # Possibly run other test cases too
 ./run-wrk.sh --web-framework nginx --test-case simple -t 8 -c 8 -d 15 
-jq -s '.[0] * .[1]'"metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
+jq -s '.[0] * .[1]' "metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
 
 # ./run-wrk.sh --web-framework nginx --test-case simple -t 16 -c 16 -d 15 
-# jq -s '.[0] * .[1]'"metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
+# jq -s '.[0] * .[1]' "metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
 
 # ./run-wrk.sh --web-framework nginx --test-case complex -t 16 -c 16 -d 15 
-# jq -s '.[0] * .[1]'"metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
+# jq -s '.[0] * .[1]' "metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c >> "result-${LOCAL_IPV4}.log"
 
 # move the result file to S3
-aws s3 mv \
+aws s3 cp \
   "result-${LOCAL_IPV4}.log" \
   "s3://samplebucket-richardimaoka-sample-sample/${TEST_EXECUTION_UUID}/result-${LOCAL_IPV4}.log"
