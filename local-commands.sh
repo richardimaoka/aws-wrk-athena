@@ -117,7 +117,7 @@ echo "Runnig a remote command to crate a result file and copy it from EC2 to S3 
 aws ssm send-command \
   --instance-ids "${WRK_INSTANCE_ID}" \
   --document-name "AWS-RunShellScript" \
-  --parameters commands=["/home/ec2-user/aws-wrk-athena/run-main.sh ${TEST_EXECUTION_UUID}"]
+  --parameters commands=["/home/ec2-user/aws-wrk-athena/run-main.sh --test-exec-uuid ${TEST_EXECUTION_UUID} ${WEB_SERVER_LOCAL_IP}"]
 
 # Go to the following page and check the command status:
 # https://console.aws.amazon.com/ec2/v2/home?#Commands:sort=CommandId
