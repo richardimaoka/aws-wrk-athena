@@ -58,7 +58,7 @@ do
             ;;
         '--web-instance-type' )
             if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
-                echo "wrk: option --wek-instance-type requires an argument -- $1" 1>&2
+                echo "wrk: option --web-instance-type requires an argument -- $1" 1>&2
                 exit 1
             fi
             WEB_INSTANCE_TYPE="$2"
