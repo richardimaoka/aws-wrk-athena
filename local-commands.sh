@@ -106,7 +106,7 @@ echo "Runnig a remote command to save web-server EC2 metadata to S3 from ${WEB_I
 aws ssm send-command \
   --instance-ids "${WEB_INSTANCE_ID}" \
   --document-name "AWS-RunShellScript" \
-  --parameters commands=["/home/ec2-user/aws-cloudformation-wrk/metadata-web.sh ${TEST_EXECUTION_UUID}"]
+  --parameters commands=["/home/ec2-user/aws-wrk-athena/metadata-web.sh ${TEST_EXECUTION_UUID}"]
 
 # Make sure the web EC2 instance is up and running
 WRK_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=${STACK_NAME}" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=wrk-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
@@ -117,7 +117,7 @@ echo "Runnig a remote command to crate a result file and copy it from EC2 to S3 
 aws ssm send-command \
   --instance-ids "${WRK_INSTANCE_ID}" \
   --document-name "AWS-RunShellScript" \
-  --parameters commands=["/home/ec2-user/aws-cloudformation-wrk/run-main.sh ${TEST_EXECUTION_UUID}"]
+  --parameters commands=["/home/ec2-user/aws-wrk-athena/run-main.sh ${TEST_EXECUTION_UUID}"]
 
 # Go to the following page and check the command status:
 # https://console.aws.amazon.com/ec2/v2/home?#Commands:sort=CommandId
