@@ -3,7 +3,36 @@
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 set -e
 
-TARGET_S3_FOLDER=$1
+# parse options, note that whitespace is needed (e.g. -c 4) between an option and the option argument
+#   Cloudformation related parameters:
+#    --test-exec-uuid A UUID representing a group of Cloudformation stacks for test execution
+#    --bucket         An S3 bucket name where the results are stored
+for OPT in "$@"
+do
+    case "$OPT" in
+        '--bucket' )
+            if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                echo "wrk: option --bucket requires an argument -- $1" 1>&2
+                exit 1
+            fi
+            BUCKET_NAME="$2"
+            shift 2
+            ;;
+        '--test-exec-uuid' )
+            if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                echo "wrk: option --test-exec-uuid requires an argument -- $1" 1>&2
+                exit 1
+            fi
+            TEST_EXECUTION_UUID="$2"
+            shift 2
+            ;;
+        -*)
+            echo "wrk: illegal option -- '$(echo "$1" | sed 's/^-*//')'" 1>&2
+            exit 1
+            ;;
+
+    esac
+done
 
 # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html#instancedata-data-retrieval
 # 169.254.169.254 is a special (loopback?) address for EC2 metadat
@@ -32,4 +61,4 @@ echo "{ \
 # Note that an instance profiler setup is needed to execute AWS CLI on EC2
 aws s3 mv \
   "metadata.${LOCAL_IPV4}.json" \
-  "s3://samplebucket-richardimaoka-sample-sample/${TARGET_S3_FOLDER}/metadata.${LOCAL_IPV4}.json"
+  "s3://${BUCKET_NAME}/${TEST_EXECUTION_UUID}/metadata.${LOCAL_IPV4}.json"

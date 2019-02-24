@@ -81,6 +81,7 @@ do
 done
 
 STACK_NAME="aws-wrk-athena-${TEST_EXECUTION_UUID}-${TEST_SEQ_NUM}"
+BUCKET_NAME="samplebucket-richardimaoka-sample-sample"
 SSH_LOCATION="$(curl ifconfig.co 2> /dev/null)/32"
 
 # Create the Cloudformation stack from the local template `cloudformation.yaml`
@@ -106,18 +107,18 @@ echo "Runnig a remote command to save web-server EC2 metadata to S3 from ${WEB_I
 aws ssm send-command \
   --instance-ids "${WEB_INSTANCE_ID}" \
   --document-name "AWS-RunShellScript" \
-  --parameters commands=["/home/ec2-user/aws-wrk-athena/metadata-web.sh ${TEST_EXECUTION_UUID}"]
+  --parameters commands=["/home/ec2-user/aws-wrk-athena/metadata-web.sh --bucket ${BUCKET_NAME} --test-exec-uuid ${TEST_EXECUTION_UUID}"]
 
 # Make sure the web EC2 instance is up and running
 WRK_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=${STACK_NAME}" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=wrk-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
 echo "Waiting until the following wrk EC2 instance is OK: ${WRK_INSTANCE_ID}"
 aws ec2 wait instance-status-ok --instance-ids ${WRK_INSTANCE_ID}
 
-echo "Runnig a remote command to crate a result file and copy it from EC2 to S3 on ${WRK_INSTANCE_ID}"
+echo "Running a remote command to crate a result file and copy it from EC2 to S3 on ${WRK_INSTANCE_ID}"
 aws ssm send-command \
   --instance-ids "${WRK_INSTANCE_ID}" \
   --document-name "AWS-RunShellScript" \
-  --parameters commands=["/home/ec2-user/aws-wrk-athena/run-main.sh --test-exec-uuid ${TEST_EXECUTION_UUID} ${WEB_SERVER_LOCAL_IP}"]
+  --parameters commands=["/home/ec2-user/aws-wrk-athena/run-main.sh --bucket ${BUCKET_NAME} --test-exec-uuid ${TEST_EXECUTION_UUID} ${WEB_SERVER_LOCAL_IP}"]
 
 # Go to the following page and check the command status:
 # https://console.aws.amazon.com/ec2/v2/home?#Commands:sort=CommandId

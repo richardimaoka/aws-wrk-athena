@@ -20,6 +20,14 @@ do
             TEST_EXECUTION_UUID="$2"
             shift 2
             ;;
+        '--bucket' )
+            if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                echo "wrk: option --bucket requires an argument -- $1" 1>&2
+                exit 1
+            fi
+            BUCKET_NAME="$2"
+            shift 2
+            ;;            
         -*)
             echo "wrk: illegal option -- '$(echo "$1" | sed 's/^-*//')'" 1>&2
             exit 1
@@ -36,10 +44,10 @@ done
 # Copy the web server metadata to the current directory
 echo "waiting for the metadata.${WEB_SERVER_LOCAL_IP}.json file to be ready in S3"
 aws s3api wait object-exists \
-  --bucket "samplebucket-richardimaoka-sample-sample" \
+  --bucket ${BUCKET_NAME} \
   --key "${TEST_EXECUTION_UUID}/metadata.${WEB_SERVER_LOCAL_IP}.json"
 aws s3 cp \
-  "s3://samplebucket-richardimaoka-sample-sample/${TEST_EXECUTION_UUID}/metadata.${WEB_SERVER_LOCAL_IP}.json" \
+  "s3://${BUCKET_NAME}/${TEST_EXECUTION_UUID}/metadata.${WEB_SERVER_LOCAL_IP}.json" \
   "metadata.${WEB_SERVER_LOCAL_IP}.json"
 
 # Produce the file to aggregate wrk results
@@ -74,4 +82,4 @@ jq -s '.[0] * .[1]' "metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c "
 # move the result file to S3
 aws s3 cp \
   "result-${LOCAL_IPV4}.log" \
-  "s3://samplebucket-richardimaoka-sample-sample/${TEST_EXECUTION_UUID}/result-${LOCAL_IPV4}.log"
+  "s3://${BUCKET_NAME}/${TEST_EXECUTION_UUID}/result-${LOCAL_IPV4}.log"
