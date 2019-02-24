@@ -89,19 +89,19 @@ aws cloudformation create-stack \
   --stack-name "${STACK_NAME}" \
   --template-body file://cloudformation.yaml \
   --capabilities CAPABILITY_NAMED_IAM \
-  --parameters ParameterKey=EC2InstanceTypeWrk,ParameterValue=${WRK_INSTANCE_TYPE} \
-               ParameterKey=EC2InstanceTypeWebServer,ParameterValue=${WEB_INSTANCE_TYPE} \
+  --parameters ParameterKey=EC2InstanceTypeWrk,ParameterValue="${WRK_INSTANCE_TYPE}" \
+               ParameterKey=EC2InstanceTypeWebServer,ParameterValue="${WEB_INSTANCE_TYPE}" \
                ParameterKey=IPAddressWrk,ParameterValue="${WRK_LOCAL_IP}" \
                ParameterKey=IPAddressWebServer,ParameterValue="${WEB_SERVER_LOCAL_IP}" \
                ParameterKey=SSHLocation,ParameterValue="${SSH_LOCATION}"
 
 echo "Waiting until the Cloudformation stack is CREATE_COMPLETE"
-aws cloudformation wait stack-create-complete --stack-name ${STACK_NAME}
+aws cloudformation wait stack-create-complete --stack-name "${STACK_NAME}"
 
 # Make sure the web EC2 instance is up and running
 WEB_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=${STACK_NAME}" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=web-server-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
 echo "Waiting until the following web-server EC2 instance is OK: ${WEB_INSTANCE_ID}"
-aws ec2 wait instance-status-ok --instance-ids ${WEB_INSTANCE_ID}
+aws ec2 wait instance-status-ok --instance-ids "${WEB_INSTANCE_ID}"
 
 echo "Runnig a remote command to save web-server EC2 metadata to S3 from ${WEB_INSTANCE_ID}"
 aws ssm send-command \
@@ -112,7 +112,7 @@ aws ssm send-command \
 # Make sure the web EC2 instance is up and running
 WRK_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=${STACK_NAME}" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=wrk-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
 echo "Waiting until the following wrk EC2 instance is OK: ${WRK_INSTANCE_ID}"
-aws ec2 wait instance-status-ok --instance-ids ${WRK_INSTANCE_ID}
+aws ec2 wait instance-status-ok --instance-ids "${WRK_INSTANCE_ID}"
 
 echo "Running a remote command to crate a result file and copy it from EC2 to S3 on ${WRK_INSTANCE_ID}"
 aws ssm send-command \

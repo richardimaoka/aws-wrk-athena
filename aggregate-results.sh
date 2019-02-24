@@ -39,20 +39,20 @@ done
 
 # Copy results files from S3 to the current directory
 RESULT_S3_FILES=$(aws s3api list-objects \
-  --bucket ${BUCKET_NAME} \
+  --bucket "${BUCKET_NAME}" \
   --prefix "${TEST_EXECUTION_UUID}/result" \
   --query 'Contents[*].Key' \
   --output text
 )
 
-mkdir ${TEST_EXECUTION_UUID}
+mkdir "${TEST_EXECUTION_UUID}"
 
-for key in $RESULT_S3_FILES
+for key in ${RESULT_S3_FILES}
 do
-  aws s3 cp "s3://${BUCKET_NAME}/${key}" ${key}
+  aws s3 cp "s3://${BUCKET_NAME}/${key}" "${key}"
 done
 
 # Aggregate the results into a single file
-ls ${TEST_EXECUTION_UUID} | xargs cat > "result-aggregated-${TEST_EXECUTION_UUID}.log"
+find "${TEST_EXECUTION_UUID}" -type f -print0 | xargs cat > "result-aggregated-${TEST_EXECUTION_UUID}.log"
 
 aws s3 cp "result-aggregated-${TEST_EXECUTION_UUID}.log" "s3://${BUCKET_NAME}/aggregated/result-aggregated-${TEST_EXECUTION_UUID}.log"
