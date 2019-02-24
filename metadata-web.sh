@@ -3,6 +3,8 @@
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 set -e
 
+TARGET_S3_FOLDER=$1
+
 # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html#instancedata-data-retrieval
 # 169.254.169.254 is a special (loopback?) address for EC2 metadat
 
@@ -24,4 +26,8 @@ echo "{ \
   \"metadata.web_server.local_ipv4\":      \"$LOCAL_IPV4\", \
   \"metadata.web_server.public_hostname\": \"$PUBLIC_HOSTNAME\", \
   \"metadata.web_server.public_ipv4\":     \"$PUBLIC_IPV4\" \
-}" > metadata.json
+}" > "metadata.${LOCAL_IPV4}.json"
+
+# On Amazon Linux, AWS CLI is already installed
+# Note that an instance profiler setup is needed to execute AWS CLI on EC2
+aws s3 mv "metadata.${LOCAL_IPV4}.json" "s3://samplebucket-richardimaoka-sample-sample/${TARGET_S3_FOLDER}"
