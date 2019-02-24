@@ -3,6 +3,16 @@
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 set -e
 
+# Create the Cloudformation stack from the local template `cloudformation.yaml`
+VPC_STACK_NAME="aws-wrk-athena-${TEST_EXECUTION_UUID}"
+aws cloudformation create-stack \
+  --stack-name "${VPC_STACK_NAME}" \
+  --template-body file://cloudformation-vpc.yaml \
+  --capabilities CAPABILITY_NAMED_IAM \
+
+echo "Waiting until the Cloudformation stack is CREATE_COMPLETE"
+aws cloudformation wait stack-create-complete --stack-name "${VPC_STACK_NAME}"
+
 UUID=$(uuidgen)
 for params in $(jq -c '.[]' local-parameters.json)
 do
@@ -13,5 +23,6 @@ do
         --web-local-ip "$(echo ${params} | jq '.web_local_ip')" \
         --wrk-instance-type "$(echo ${params} | jq '.wrk_instance_type')" \
         --web-instance-type "$(echo ${params} | jq '.web_instance_type')" \
-        --web-framework "$(echo ${params} | jq '.web_framework')"
+        --web-framework "$(echo ${params} | jq '.web_framework')" &
 done
+wait

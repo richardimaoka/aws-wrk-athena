@@ -81,13 +81,14 @@ do
 done
 
 STACK_NAME="aws-wrk-athena-${TEST_EXECUTION_UUID}-${TEST_SEQ_NUM}"
+VPC_STACK_NAME="aws-wrk-athena-${TEST_EXECUTION_UUID}"
 BUCKET_NAME="samplebucket-richardimaoka-sample-sample"
 SSH_LOCATION="$(curl ifconfig.co 2> /dev/null)/32"
 
-# Create the Cloudformation stack from the local template `cloudformation.yaml`
+# Create the Cloudformation stack from the local template `cloudformation-ec2.yaml`
 aws cloudformation create-stack \
   --stack-name "${STACK_NAME}" \
-  --template-body file://cloudformation.yaml \
+  --template-body file://cloudformation-ec2.yaml \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters ParameterKey=EC2InstanceTypeWrk,ParameterValue="${WRK_INSTANCE_TYPE}" \
                ParameterKey=EC2InstanceTypeWebServer,ParameterValue="${WEB_INSTANCE_TYPE}" \

@@ -60,111 +60,6 @@ Parameters:
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
 
 Resources:
-  # Resources for SSM
-  # https://docs.aws.amazon.com/systems-manager/latest/userguide/automation-cf.html#automation-cf-create
-  RoleSSM:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - ssm.amazonaws.com
-            - ec2.amazonaws.com
-          Action: sts:AssumeRole
-      ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
-      Path: "/"
-  InstanceProfileSSM:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Path: "/"
-      Roles:
-      - !Ref RoleSSM
-
-  # Define VPC and Subnet
-  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      Tags:
-        - Key: Name
-          Value: wrk-test-vpc
-  Subnet:
-    Type: AWS::EC2::Subnet
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: wrk-test-subnet
-
-  # Define Internet Gateway and the attachment to VPC          
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-      - Key: Name
-        Value: wrk-test-igateway
-  VPCGatewayAttachment:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties: 
-      InternetGatewayId: !Ref InternetGateway
-      VpcId: !Ref VPC
-
-  # Define Route Table, its Route, and associate the Route Table with the Subnet
-  RouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-      - Key: Name
-        Value: wrk-test-route-table
-  RouteInternetGateway:
-    Type: AWS::EC2::Route
-    Properties: 
-      DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
-      RouteTableId: !Ref RouteTable      
-  SubnetRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref RouteTable
-      SubnetId: !Ref Subnet
-
-  # Define Security Group and its inbound rules (= ingress).
-  # The outbound (egress) rules are automatically set as "Allow All".
-  SecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties: 
-      GroupName: wrk-test-security-group
-      GroupDescription: security group allowing SSH and ICMP
-      VpcId: !Ref VPC
-  SecurityGropuIngressInternal:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref SecurityGroup
-      IpProtocol: -1
-      SourceSecurityGroupId: !Ref SecurityGroup
-  SecurityGropuIngressSSH:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref SecurityGroup
-      IpProtocol: tcp
-      FromPort: 22
-      ToPort: 22
-      CidrIp: !Ref SSHLocation
-  SecurityGropuIngressICMP:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref SecurityGroup
-      IpProtocol: icmp
-      FromPort: 8
-      ToPort: 8
-      CidrIp: !Ref SSHLocation
-
   # Define EC2 instance for WRK and its associated volumes
   EC2InstanceWrk:
     Type: AWS::EC2::Instance
@@ -175,7 +70,7 @@ Resources:
       # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-create-keypair.html
       KeyName: "demo-key-pair"
       # To allow running commands via SSM
-      IamInstanceProfile: !Ref InstanceProfileSSM
+      IamInstanceProfile: {'Fn::ImportValue': !Sub '${VPCStack}-InstanceProfile'}
       UserData:
         Fn::Base64: |
             #!/bin/bash
@@ -192,8 +87,8 @@ Resources:
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
           GroupSet:
-            - !Ref SecurityGroup
-          SubnetId: !Ref Subnet
+            - {'Fn::ImportValue': !Sub '${VPCStack}-SecurityGroup'}
+          SubnetId: {'Fn::ImportValue': !Sub '${VPCStack}-Subnet'}
           PrivateIpAddresses:
             - PrivateIpAddress: !Ref IPAddressWrk
               Primary: true
@@ -211,7 +106,7 @@ Resources:
       # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-create-keypair.html
       KeyName: "demo-key-pair"
       # To allow running commands via SSM
-      IamInstanceProfile: !Ref InstanceProfileSSM
+      IamInstanceProfile: {'Fn::ImportValue': !Sub '${VPCStack}-InstanceProfile'}
       UserData:
         Fn::Base64: |
             #!/bin/bash
@@ -228,8 +123,8 @@ Resources:
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
           GroupSet:
-            - !Ref SecurityGroup
-          SubnetId: !Ref Subnet
+            - {'Fn::ImportValue': !Sub '${VPCStack}-SecurityGroup'}
+          SubnetId: {'Fn::ImportValue': !Sub '${VPCStack}-Subnet'}
           PrivateIpAddresses:
             - PrivateIpAddress: !Ref IPAddressWebServer
               Primary: true
