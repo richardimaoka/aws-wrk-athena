@@ -25,18 +25,12 @@ Resources:
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
       Path: "/"
-      Tags:
-        - Key: Name
-          Value: aws-wrk-athena-ssm-role
   InstanceProfileSSM:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: "/"
       Roles:
       - !Ref RoleSSM
-      Tags:
-        - Key: Name
-          Value: aws-wrk-athena-instance-profile
 
   # Define VPC and Subnet
   VPC:
