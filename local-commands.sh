@@ -90,7 +90,8 @@ aws cloudformation create-stack \
   --stack-name "${STACK_NAME}" \
   --template-body file://cloudformation-ec2.yaml \
   --capabilities CAPABILITY_NAMED_IAM \
-  --parameters ParameterKey=EC2InstanceTypeWrk,ParameterValue="${WRK_INSTANCE_TYPE}" \
+  --parameters ParameterKey=VPCStackName,ParameterValue="${VPC_STACK_NAME}" \
+               ParameterKey=EC2InstanceTypeWrk,ParameterValue="${WRK_INSTANCE_TYPE}" \
                ParameterKey=EC2InstanceTypeWebServer,ParameterValue="${WEB_INSTANCE_TYPE}" \
                ParameterKey=IPAddressWrk,ParameterValue="${WRK_LOCAL_IP}" \
                ParameterKey=IPAddressWebServer,ParameterValue="${WEB_SERVER_LOCAL_IP}" \

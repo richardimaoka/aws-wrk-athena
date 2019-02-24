@@ -1,5 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
+  VPCStackName:
+    Description: Cloudformation stack name of the VPC stack
+    Type: String
   # https://aws.amazon.com/ec2/instance-types/
   EC2InstanceTypeWrk: 
     Description: Instance type to run wrk.
@@ -70,7 +73,7 @@ Resources:
       # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-create-keypair.html
       KeyName: "demo-key-pair"
       # To allow running commands via SSM
-      IamInstanceProfile: {'Fn::ImportValue': !Sub '${VPCStack}-InstanceProfile'}
+      IamInstanceProfile: {'Fn::ImportValue': !Sub '${VPCStackName}-InstanceProfile'}
       UserData:
         Fn::Base64: |
             #!/bin/bash
@@ -87,8 +90,8 @@ Resources:
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
           GroupSet:
-            - {'Fn::ImportValue': !Sub '${VPCStack}-SecurityGroup'}
-          SubnetId: {'Fn::ImportValue': !Sub '${VPCStack}-Subnet'}
+            - {'Fn::ImportValue': !Sub '${VPCStackName}-SecurityGroup'}
+          SubnetId: {'Fn::ImportValue': !Sub '${VPCStackName}-Subnet'}
           PrivateIpAddresses:
             - PrivateIpAddress: !Ref IPAddressWrk
               Primary: true
@@ -106,7 +109,7 @@ Resources:
       # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-create-keypair.html
       KeyName: "demo-key-pair"
       # To allow running commands via SSM
-      IamInstanceProfile: {'Fn::ImportValue': !Sub '${VPCStack}-InstanceProfile'}
+      IamInstanceProfile: {'Fn::ImportValue': !Sub '${VPCStackName}-InstanceProfile'}
       UserData:
         Fn::Base64: |
             #!/bin/bash
@@ -123,8 +126,8 @@ Resources:
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
           GroupSet:
-            - {'Fn::ImportValue': !Sub '${VPCStack}-SecurityGroup'}
-          SubnetId: {'Fn::ImportValue': !Sub '${VPCStack}-Subnet'}
+            - {'Fn::ImportValue': !Sub '${VPCStackName}-SecurityGroup'}
+          SubnetId: {'Fn::ImportValue': !Sub '${VPCStackName}-Subnet'}
           PrivateIpAddresses:
             - PrivateIpAddress: !Ref IPAddressWebServer
               Primary: true

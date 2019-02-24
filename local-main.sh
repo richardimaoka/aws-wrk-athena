@@ -3,8 +3,10 @@
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 set -e
 
+UUID=$(uuidgen)
+
 # Create the Cloudformation stack from the local template `cloudformation.yaml`
-VPC_STACK_NAME="aws-wrk-athena-${TEST_EXECUTION_UUID}"
+VPC_STACK_NAME="aws-wrk-athena-${UUID}"
 SSH_LOCATION="$(curl ifconfig.co 2> /dev/null)/32"
 aws cloudformation create-stack \
   --stack-name "${VPC_STACK_NAME}" \
@@ -15,7 +17,6 @@ aws cloudformation create-stack \
 echo "Waiting until the Cloudformation stack is CREATE_COMPLETE"
 aws cloudformation wait stack-create-complete --stack-name "${VPC_STACK_NAME}"
 
-UUID=$(uuidgen)
 for params in $(jq -c '.[]' local-parameters.json)
 do
     ./local-commands.sh \
