@@ -46,6 +46,10 @@ aws s3 cp \
 LOCAL_IPV4=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
 echo "" > "result-${LOCAL_IPV4}.log"
 
+#############################################################
+# From here, you can execute whatever test scenarios you like
+#############################################################
+# Test scenario 1.
 # Run wrk and append the result to "result-${LOCAL_IPV4}.log"
 ./run-wrk.sh --web-framework nginx --test-case simple -t 4 -c 4 -d 15 "http://${WEB_SERVER_LOCAL_IP}/"
 # Amazon Athena handles **single-line** JSON only due to 'org.openx.data.jsonserde.JsonSerDe'
@@ -54,13 +58,16 @@ echo "" > "result-${LOCAL_IPV4}.log"
 # so using -c to put each test case results into a single line:
 jq -s '.[0] * .[1]' "metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c "." >> "result-${LOCAL_IPV4}.log"
 
+# Test scenario 2.
 # Possibly run other test cases too
 ./run-wrk.sh --web-framework nginx --test-case simple -t 8 -c 8 -d 15 "http://${WEB_SERVER_LOCAL_IP}/"
 jq -s '.[0] * .[1]' "metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c "." >> "result-${LOCAL_IPV4}.log"
 
+# Test scenario 3.
 # ./run-wrk.sh --web-framework nginx --test-case simple -t 16 -c 16 -d 15 "http://${WEB_SERVER_LOCAL_IP}/"
 # jq -s '.[0] * .[1]' "metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c "." >> "result-${LOCAL_IPV4}.log"
 
+# Test scenario 4.
 # ./run-wrk.sh --web-framework nginx --test-case complex -t 16 -c 16 -d 15 "http://${WEB_SERVER_LOCAL_IP}/"
 # jq -s '.[0] * .[1]' "metadata.${WEB_SERVER_LOCAL_IP}.json" result.json | jq -c "." >> "result-${LOCAL_IPV4}.log"
 
