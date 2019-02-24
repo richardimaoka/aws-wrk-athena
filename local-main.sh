@@ -5,10 +5,12 @@ set -e
 
 # Create the Cloudformation stack from the local template `cloudformation.yaml`
 VPC_STACK_NAME="aws-wrk-athena-${TEST_EXECUTION_UUID}"
+SSH_LOCATION="$(curl ifconfig.co 2> /dev/null)/32"
 aws cloudformation create-stack \
   --stack-name "${VPC_STACK_NAME}" \
   --template-body file://cloudformation-vpc.yaml \
   --capabilities CAPABILITY_NAMED_IAM \
+  --parameters ParameterKey=SSHLocation,ParameterValue="${SSH_LOCATION}"
 
 echo "Waiting until the Cloudformation stack is CREATE_COMPLETE"
 aws cloudformation wait stack-create-complete --stack-name "${VPC_STACK_NAME}"
