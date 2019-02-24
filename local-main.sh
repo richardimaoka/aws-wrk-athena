@@ -4,7 +4,7 @@
 set -e
 
 UUID=$(uuidgen)
-for params in $(jq -c '.[]' local-parameters.sample.json)
+for params in $(jq -c '.[]' local-parameters.json)
 do
     ./local-commands.sh \
         --test-exec-uuid "${UUID}" \
