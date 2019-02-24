@@ -17,8 +17,8 @@ UUID=$(uuidgen)
 ./local-commands.sh \
     --test-exec-uuid "${UUID}" \
     --test-seq-num 1\
-    --wrk-local-ip "10.0.1.1" \
-    --web-local-ip "10.0.0.1" \
+    --wrk-local-ip "10.0.2.1" \
+    --web-local-ip "10.0.1.1" \
     --wrk-instance-type "m5.xlarge" \
     --web-instance-type "m5.xlarge" \
     --web-framework "nginx"    

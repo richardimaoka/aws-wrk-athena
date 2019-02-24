@@ -81,7 +81,7 @@ do
 done
 
 STACK_NAME="aws-wrk-athena-${TEST_EXECUTION_UUID}-${TEST_SEQ_NUM}"
-SSH_LOCATION="$(curl ifconfig.co)/32"
+SSH_LOCATION="$(curl ifconfig.co 2> /dev/null)/32"
 
 # Create the Cloudformation stack from the local template `cloudformation.yaml`
 aws cloudformation create-stack \
@@ -98,7 +98,7 @@ echo "Waiting until the Cloudformation stack is CREATE_COMPLETE"
 aws cloudformation wait stack-create-complete --stack-name ${STACK_NAME}
 
 # Make sure the web EC2 instance is up and running
-WEB_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=${STACK_NAME}" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=web-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
+WEB_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=${STACK_NAME}" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=web-server-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
 echo "Waiting until the following web-server EC2 instance is OK: ${WEB_INSTANCE_ID}"
 aws ec2 wait instance-status-ok --instance-ids ${WEB_INSTANCE_ID}
 
