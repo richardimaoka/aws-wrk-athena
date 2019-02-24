@@ -10,12 +10,30 @@ set -e
 current_time=$(date -Iseconds)
 
 # parse options, note that whitespace is needed (e.g. -c 4) between an option and the option argument
+#  --web-framework   <S>  Name of the web framework to test
+#  --test-case       <S>  Test case name
 #  -c, --connections <N>  Connections to keep open
 #  -d, --duration    <T>  Duration of test        
 #  -t, --threads     <N>  Number of threads to use 
 for OPT in "$@"
 do
     case "$OPT" in
+        '--web-framework' )
+            if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                echo "wrk: option --web-framework requires an argument -- $1" 1>&2
+                exit 1
+            fi
+            web_framework="$2"
+            shift 2
+            ;;
+        '--test-case' )
+            if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                echo "wrk: option --test-case requires an argument -- $1" 1>&2
+                exit 1
+            fi
+            test_case="$2"
+            shift 2
+            ;;
         '-c'|'--connections' )
             if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
                 echo "wrk: option -c or --connections requires an argument -- $1" 1>&2
@@ -55,11 +73,13 @@ done
 
 # Produce wrk_parameters.json
 echo "{ \
+  \"parameters.web_framework\":    \"$web_framework\", \
+  \"parameters.test_cast\":        \"$test_Case\", \
   \"parameters.execution_time\":   \"$current_time\", \
   \"parameters.connections\":      $connections, \
   \"parameters.duration_seconds\": $duration, \
   \"parameters.num_threads\":      $threads \
-}" > wrk_parameters.json
+}" > results/wrk_parameters.json
 
 # Run wrk and produce wrk_results.json
 # Mounting the current directory to wrk container's WORKDIR = '/data'
@@ -69,8 +89,6 @@ echo "${WRK_CMD}"
 ${WRK_CMD}
 
 # Produce metadata.json
-./metadata.sh
+./metadata-wrk.sh
 
 jq -s '.[0] * .[1] * .[2]' wrk_results.json wrk_parameters.json metadata.json > result.json
-
-

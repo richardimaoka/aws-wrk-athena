@@ -16,12 +16,12 @@ PUBLIC_HOSTNAME=$(curl http://169.254.169.254/latest/meta-data/public-hostname)
 PUBLIC_IPV4=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
 
 echo "{ \
-  \"metadata.ami_id\":          \"$AMI_ID\", \
-  \"metadata.instance_id\":     \"$INSTANCE_ID\", \
-  \"metadata.instance_type\":   \"$INSTANCE_TYPE\", \
-  \"metadata.hostname\":        \"$HOSTNAME\", \
-  \"metadata.local_hostname\":  \"$LOCAL_HOSTNAME\", \
-  \"metadata.local_ipv4\":      \"$LOCAL_IPV4\", \
-  \"metadata.public_hostname\": \"$PUBLIC_HOSTNAME\", \
-  \"metadata.public_ipv4\":     \"$PUBLIC_IPV4\" \
+  \"metadata.web_server.ami_id\":          \"$AMI_ID\", \
+  \"metadata.web_server.instance_id\":     \"$INSTANCE_ID\", \
+  \"metadata.web_server.instance_type\":   \"$INSTANCE_TYPE\", \
+  \"metadata.web_server.hostname\":        \"$HOSTNAME\", \
+  \"metadata.web_server.local_hostname\":  \"$LOCAL_HOSTNAME\", \
+  \"metadata.web_server.local_ipv4\":      \"$LOCAL_IPV4\", \
+  \"metadata.web_server.public_hostname\": \"$PUBLIC_HOSTNAME\", \
+  \"metadata.web_server.public_ipv4\":     \"$PUBLIC_IPV4\" \
 }" > metadata.json
