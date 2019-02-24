@@ -25,12 +25,18 @@ Resources:
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
       Path: "/"
+      Tags:
+        - Key: Name
+          Value: aws-wrk-athena-ssm-role
   InstanceProfileSSM:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: "/"
       Roles:
       - !Ref RoleSSM
+      Tags:
+        - Key: Name
+          Value: aws-wrk-athena-instance-profile
 
   # Define VPC and Subnet
   VPC:
@@ -39,7 +45,7 @@ Resources:
       CidrBlock: 10.0.0.0/16
       Tags:
         - Key: Name
-          Value: wrk-test-vpc
+          Value: aws-wrk-athena-vpc
   Subnet:
     Type: AWS::EC2::Subnet
     Properties:
@@ -47,7 +53,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: wrk-test-subnet
+          Value: aws-wrk-athena-subnet
 
   # Define Internet Gateway and the attachment to VPC          
   InternetGateway:
@@ -55,7 +61,7 @@ Resources:
     Properties:
       Tags:
       - Key: Name
-        Value: wrk-test-igateway
+        Value: aws-wrk-athena-igateway
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties: 
@@ -69,7 +75,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: wrk-test-route-table
+        Value: aws-wrk-athena-route-table
   RouteInternetGateway:
     Type: AWS::EC2::Route
     Properties: 
@@ -87,9 +93,12 @@ Resources:
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties: 
-      GroupName: wrk-test-security-group
+      GroupName: aws-wrk-athena-security-group
       GroupDescription: security group allowing SSH and ICMP
       VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: aws-wrk-athena-security-group
   SecurityGropuIngressInternal:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
