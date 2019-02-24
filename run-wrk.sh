@@ -74,7 +74,7 @@ done
 # Produce wrk_parameters.json
 echo "{ \
   \"parameters.web_framework\":    \"$web_framework\", \
-  \"parameters.test_cast\":        \"$test_Case\", \
+  \"parameters.test_case\":        \"$test_case\", \
   \"parameters.execution_time\":   \"$current_time\", \
   \"parameters.connections\":      $connections, \
   \"parameters.duration_seconds\": $duration, \
