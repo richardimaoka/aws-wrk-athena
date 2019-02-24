@@ -121,7 +121,7 @@ Outputs:
       Name: !Sub "${AWS::StackName}-InstanceProfile"
   SecurityGroup:
     Description: SecurityGroup
-    Value: !Ref Subnet
+    Value: !Ref SecurityGroup
     Export:
       Name: !Sub "${AWS::StackName}-SecurityGroup"
   Subnet:
