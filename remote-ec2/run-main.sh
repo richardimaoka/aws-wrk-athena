@@ -50,7 +50,9 @@ aws s3 cp \
   "s3://${BUCKET_NAME}/${TEST_EXECUTION_UUID}/metadata.${WEB_SERVER_LOCAL_IP}.json" \
   "metadata.${WEB_SERVER_LOCAL_IP}.json"
 
-# Produce the file to aggregate wrk results
+# Produce the file to concat all the results on this EC2 instance
+# https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html#instancedata-data-retrieval
+# 169.254.169.254 is a special (loopback?) address for EC2 metadat
 LOCAL_IPV4=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
 
 #############################################################

@@ -41,16 +41,10 @@ do
     esac
 done
 
-STACK_NAME="aws-wrk-athena-${TEST_EXECUTION_UUID}-1"
 BUCKET_NAME="samplebucket-richardimaoka-sample-sample"
 
-WRK_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:aws:cloudformation:stack-name,Values=${STACK_NAME}" "Name=instance-state-name,Values=running" "Name=tag:Name,Values=web-server-instance" --output text --query "Reservations[*].Instances[*].InstanceId")
+aws s3 cp --exclude "metadata.*" --recursive s3://samplebucket-richardimaoka-sample-sample/ad27ca97-dd34-42f1-935b-1c0b0b8b8621/ tmp/
 
-aws ssm send-command \
-  --instance-ids "${WRK_INSTANCE_ID}" \
-  --document-name "AWS-RunShellScript" \
-  --comment "aws-wrk-athena command to run wrk" \
-  --parameters commands=["/home/ec2-user/aws-wrk-athena/aggregate-result.sh --bucket ${BUCKET_NAME} --test-exec-uuid ${TEST_EXECUTION_UUID}"] \
-  --output text \
-  --query "Command.CommandId"
+cat tmp/*.log >> aggregated.log
 
+aws s3 cp aggregated.log s3://samplebucket-richardimaoka-sample-sample/aggregated/

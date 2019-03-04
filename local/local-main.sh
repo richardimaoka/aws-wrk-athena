@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# cd to the current directory as it runs other shell scripts
+cd "$(dirname "$0")"
+
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 set -e
 
