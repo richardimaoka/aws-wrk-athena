@@ -46,5 +46,5 @@ mkdir -p aggregated
 cat froms3/*.log >> "aggregated/${TEST_EXECUTION_UUID}.log"
 
 aws s3 cp \
-  "${TEST_EXECUTION_UUID}.log" \
+  "aggregated/${TEST_EXECUTION_UUID}.log" \
   "s3://${BUCKET_NAME}/aggregated/"
