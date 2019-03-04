@@ -20,14 +20,6 @@ do
             TEST_EXECUTION_UUID="$2"
             shift 2
             ;;
-        '--bucket' )
-            if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
-                echo "wrk: option --bucket requires an argument -- $1" 1>&2
-                exit 1
-            fi
-            BUCKET_NAME="$2"
-            shift 2
-            ;;            
         -*)
             echo "wrk: illegal option -- '$(echo "$1" | sed 's/^-*//')'" 1>&2
             exit 1
@@ -55,4 +47,4 @@ cat froms3/*.log >> "aggregated/${TEST_EXECUTION_UUID}.log"
 
 aws s3 cp \
   "${TEST_EXECUTION_UUID}.log" \
-  "s3://${BUCKET_NAME}/aggregated/""
+  "s3://${BUCKET_NAME}/aggregated/"
