@@ -5,7 +5,7 @@ set -e
 
 UUID=$(uuidgen)
 
-# Create the Cloudformation stack from the local template `cloudformation.yaml`
+# Create the Cloudformation VPC-only stack from the local template `cloudformation-vpc.yaml`
 VPC_STACK_NAME="aws-wrk-athena-${UUID}"
 SSH_LOCATION="$(curl ifconfig.co 2> /dev/null)/32"
 aws cloudformation create-stack \

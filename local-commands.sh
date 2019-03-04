@@ -94,8 +94,7 @@ aws cloudformation create-stack \
                ParameterKey=EC2InstanceTypeWrk,ParameterValue="${WRK_INSTANCE_TYPE}" \
                ParameterKey=EC2InstanceTypeWebServer,ParameterValue="${WEB_INSTANCE_TYPE}" \
                ParameterKey=IPAddressWrk,ParameterValue="${WRK_LOCAL_IP}" \
-               ParameterKey=IPAddressWebServer,ParameterValue="${WEB_SERVER_LOCAL_IP}" \
-               ParameterKey=SSHLocation,ParameterValue="${SSH_LOCATION}"
+               ParameterKey=IPAddressWebServer,ParameterValue="${WEB_SERVER_LOCAL_IP}"
 
 echo "Waiting until the Cloudformation stack is CREATE_COMPLETE"
 aws cloudformation wait stack-create-complete --stack-name "${STACK_NAME}"
