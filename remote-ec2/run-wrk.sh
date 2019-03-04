@@ -10,20 +10,21 @@ set -e
 current_time=$(date -Iseconds)
 
 # parse options, note that whitespace is needed (e.g. -c 4) between an option and the option argument
-#  --web-framework   <S>  Name of the web framework to test
+#  --test-id         <S>  Test UUID
 #  --test-case       <S>  Test case name
+#  --web-framework   <S>  Name of the web framework to test
 #  -c, --connections <N>  Connections to keep open
 #  -d, --duration    <T>  Duration of test        
 #  -t, --threads     <N>  Number of threads to use 
 for OPT in "$@"
 do
     case "$OPT" in
-        '--web-framework' )
+        '--test-exec-uuid' )
             if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
-                echo "wrk: option --web-framework requires an argument -- $1" 1>&2
+                echo "wrk: option --test-exec-uuid requires an argument -- $1" 1>&2
                 exit 1
             fi
-            web_framework="$2"
+            test_uuid="$2"
             shift 2
             ;;
         '--test-case' )
@@ -32,6 +33,14 @@ do
                 exit 1
             fi
             test_case="$2"
+            shift 2
+            ;;
+        '--web-framework' )
+            if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                echo "wrk: option --web-framework requires an argument -- $1" 1>&2
+                exit 1
+            fi
+            web_framework="$2"
             shift 2
             ;;
         '-c'|'--connections' )
@@ -74,6 +83,7 @@ done
 # Produce wrk_parameters.json
 echo "{ \
   \"parameters.web_framework\":    \"$web_framework\", \
+  \"parameters.test_id\":          \"$test_uuid\", \
   \"parameters.test_case\":        \"$test_case\", \
   \"parameters.execution_time\":   \"$current_time\", \
   \"parameters.connections\":      $connections, \
