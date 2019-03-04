@@ -43,8 +43,16 @@ done
 
 BUCKET_NAME="samplebucket-richardimaoka-sample-sample"
 
-aws s3 cp --exclude "metadata.*" --recursive s3://samplebucket-richardimaoka-sample-sample/ad27ca97-dd34-42f1-935b-1c0b0b8b8621/ tmp/
+mkdir -p froms3
+aws s3 cp \
+  --exclude "metadata.*" \
+  --recursive \
+  "s3://${BUCKET_NAME}/${TEST_EXECUTION_UUID}"/ \
+  froms3/
 
-cat tmp/*.log >> aggregated.log
+mkdir -p aggregated
+cat froms3/*.log >> "aggregated/${TEST_EXECUTION_UUID}.log"
 
-aws s3 cp aggregated.log s3://samplebucket-richardimaoka-sample-sample/aggregated/
+aws s3 cp \
+  "${TEST_EXECUTION_UUID}.log" \
+  "s3://${BUCKET_NAME}/aggregated/""
