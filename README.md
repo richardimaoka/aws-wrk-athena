@@ -1,4 +1,4 @@
-## overview
+## Overview
 
 Use Amazon Athena to query wrk benchmark results saved in Amazon S3.
 
@@ -24,7 +24,7 @@ adding multiple wrk result file aggregation, and Amazon Athena capabilities.
   - There is no nice way to automatically wait on completion of Amazon SSM commands, so you need to watch the SSM command status on AWS web console, and run `local/local-aggregate.sh` manually
 - Now you are ready to go with Amazon Athena - Go to the Athena web console and set up the database and table with DDLs in `athena-setup.sql`. You get a result like in the attached screenshot at the top of this README.
 
-S## Anatomy of this git repository
+## Anatomy of this git repository
 
 - `local` directory: contains shell scripts you run from your local machine
 - `remote-ec2` directory: you don't run scripts in this directory, but you send Amazon SSM commands from the shell scripts under the `local directory` to execute `remote-ec2` scripts on Amazon EC2
